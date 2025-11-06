@@ -1,11 +1,6 @@
 <template>
-  <div class="relative flex h-screen bg-surface-ground text-text-primary">
-    <!-- القائمة الجانبية لسطح المكتب (ثابتة) -->
-    <div class="hidden lg:flex lg:flex-shrink-0">
-      <TheSidebar class="w-64" />
-    </div>
-
-    <!-- القائمة الجانبية للهاتف (منبثقة) -->
+  <div class="h-screen bg-surface-ground text-text-primary">
+    <!-- القائمة الجانبية للهاتف (منبثقة) - تبقى كما هي لأنها تستخدم position: fixed -->
     <TransitionRoot as="template" :show="isSidebarOpen">
       <Dialog as="div" class="relative z-50 lg:hidden" @close="isSidebarOpen = false">
         <TransitionChild
@@ -23,13 +18,13 @@
           <TransitionChild
             as="template"
             enter="transition ease-in-out duration-300 transform"
-            enter-from="-translate-x-full"
+            enter-from="translate-x-full"
             enter-to="translate-x-0"
             leave="transition ease-in-out duration-300 transform"
             leave-from="translate-x-0"
-            leave-to="-translate-x-full"
+            leave-to="translate-x-full"
           >
-            <DialogPanel class="relative mr-auto flex h-full w-full max-w-xs flex-1">
+            <DialogPanel class="relative ml-auto flex h-full w-full max-w-xs flex-1">
               <TheSidebar class="w-full" @close-sidebar="isSidebarOpen = false" />
             </DialogPanel>
           </TransitionChild>
@@ -37,13 +32,27 @@
       </Dialog>
     </TransitionRoot>
 
-    <!-- المحتوى الرئيسي -->
-    <div class="flex flex-1 flex-col overflow-hidden">
-      <TheHeader @open-sidebar="isSidebarOpen = true" />
-      <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <RouterView />
-      </main>
+    <!-- [بداية التعديل الجذري] -->
+    <!-- بنية جديدة تعزل تخطيط سطح المكتب عن تخطيط الهاتف -->
+    <div class="flex h-full">
+      <!-- القائمة الجانبية لسطح المكتب (ثابتة) -->
+      <div class="hidden lg:flex lg:flex-shrink-0">
+        <TheSidebar class="w-64" />
+      </div>
+
+      <!-- المحتوى الرئيسي -->
+      <div class="flex flex-1 flex-col overflow-hidden">
+        <!--
+          تمت إضافة z-20 و relative هنا لضمان أن الهيدر دائمًا قابل للنقر
+          ويكون فوق المحتوى ولكن تحت الـ Dialog (z-50)
+        -->
+        <TheHeader @open-sidebar="isSidebarOpen = true" class="relative z-20" />
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <RouterView />
+        </main>
+      </div>
     </div>
+    <!-- [نهاية التعديل الجذري] -->
   </div>
 </template>
 

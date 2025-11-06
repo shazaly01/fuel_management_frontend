@@ -6,8 +6,8 @@
     <!-- الشعار -->
     <div class="flex h-16 items-center justify-between px-5 flex-shrink-0">
       <RouterLink :to="{ name: 'Dashboard' }" class="flex items-center gap-2">
-        <img src="/logo.png" alt="Project Logo" class="w-8 h-8 rounded-md" />
-        <h1 class="text-xl font-bold text-text-primary">مشروعي</h1>
+        <img src="/logo3.png" alt="Project Logo" class="w-8 h-8 rounded-md" />
+        <h1 class="text-xl font-bold text-text-primary">الأسطول للنقل</h1>
       </RouterLink>
       <button
         @click="$emit('close-sidebar')"
@@ -230,13 +230,28 @@ const handleLogout = async () => {
 .nav-link:hover {
   @apply bg-surface-border text-text-primary;
 }
+
 .router-link-exact-active {
-  @apply bg-primary/10 text-primary;
+  @apply bg-gradient-to-b from-primary-light to-primary-dark text-white;
+
+  --tw-shadow-color: theme('colors.primary.DEFAULT');
+  --tw-shadow: 0 4px 14px 0 var(--tw-shadow-color);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+
+  --tw-shadow-opacity: 0.3;
+  --tw-shadow-color: rgba(theme('colors.primary.DEFAULT'), var(--tw-shadow-opacity));
 }
+
+/* --- [بداية التعديل المهم] --- */
 .nav-sub-link.router-link-exact-active {
-  @apply border-r-4 border-primary;
-  box-shadow: 0 1px 3px theme('colors.primary / 20%');
+  @apply bg-gradient-to-b from-primary-light to-primary-dark; /* تطبيق نفس التدرج */
+  @apply text-white; /* تغيير لون النص إلى الأبيض */
+  @apply border-r-4 border-primary-dark; /* استخدام درجة أغمق للخط الجانبي للتباين */
+  box-shadow: none;
 }
+/* --- [نهاية التعديل المهم] --- */
+
 .nav-group-button {
   @apply flex items-center justify-between w-full rounded-lg px-3 py-2.5 text-text-secondary transition-colors duration-300 transform;
 }

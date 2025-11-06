@@ -22,9 +22,9 @@
         <div class="relative z-10">
           <div class="text-center mb-8">
             <!-- [مُعدَّل] استخدم شعار مشروعك وعنوانه -->
-            <img src="/logo.png" alt="Project Logo" class="w-24 h-24 mx-auto mb-4 rounded-full" />
-            <h1 class="text-4xl font-bold text-white tracking-wider">اسم مشروعك</h1>
-            <p class="mt-2 text-slate-300 opacity-80 text-lg">لوحة التحكم الإدارية</p>
+            <img src="/logo3.png" alt="Project Logo" class="w-24 h-24 mx-auto mb-4 rounded-full" />
+            <h1 class="text-4xl font-bold text-white tracking-wider">شركة الأســطول</h1>
+            <p class="mt-2 text-slate-300 opacity-80 text-lg">لنقل الوقود ومشتقاته</p>
           </div>
 
           <!-- [مُعدَّل] رسالة الخطأ مدمجة هنا -->

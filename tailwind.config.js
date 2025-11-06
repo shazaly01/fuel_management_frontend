@@ -1,9 +1,10 @@
+// tailwind.config.js
+
 /** @type {import('tailwindcss').Config} */
 import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
   darkMode: 'class',
-
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
@@ -12,26 +13,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Tajawal', ...defaultTheme.fontFamily.sans],
+        sans: ['Cairo', ...defaultTheme.fontFamily.sans],
       },
-      // [مُعدَّل] تم تغيير الألوان لتعكس ثيم "الشفق القطبي"
       colors: {
-        // اللون الأساسي أصبح أخضر زمردي
-        primary: '#10B981',
-        // اللون الثانوي أصبح أصفر كهرماني
-        secondary: '#F59E0B',
+        // هذه هي البنية الصحيحة التي تسمح لنا بإنشاء التدرج
+        primary: {
+          light: '#3B82F6', // أزرق ناصع (للجزء اللامع) - Blue-500
+          DEFAULT: '#2563EB', // اللون الأساسي الافتراضي - Blue-600
+          dark: '#1D4ED8', // أزرق أغمق (للجزء السفلي/الظل) - Blue-700
+        },
 
-        // ألوان الحالات (يمكن أن تبقى كما هي)
+        secondary: '#4B5563',
         danger: '#EF4444',
         success: '#22C55E',
         warning: '#F97316',
-
-        // ألوان الخلفيات (يمكن أن تبقى كما هي أو نعدلها قليلاً)
-        'surface-ground': '#111827',
-        'surface-section': '#1F2937',
-        'surface-border': '#374151',
-
-        // ألوان النصوص (تبقى كما هي)
+        'surface-ground': '#1F2937',
+        'surface-section': '#374151',
+        'surface-border': '#4B5563',
         'text-primary': '#F9FAFB',
         'text-secondary': '#D1D5DB',
         'text-muted': '#9CA3AF',

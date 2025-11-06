@@ -1,87 +1,115 @@
 <template>
-  <!-- القالب يبقى كما هو بدون أي تغيير -->
-  <div class="p-8 font-sans">
-    <!-- شريط الإجراءات (يختفي عند الطباعة) -->
-    <div class="print-hide mb-8 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">معاينة طباعة التقرير</h1>
-      <AppButton @click="triggerPrint" :disabled="loading">
-        <PrinterIcon class="w-5 h-5 ml-2" />
-        اطبع الآن
-      </AppButton>
-    </div>
-
-    <!-- رسائل التحميل والخطأ -->
-    <div v-if="loading" class="text-center p-10">
-      <p class="text-gray-600">جاري جلب بيانات التقرير...</p>
-    </div>
-    <div v-else-if="error" class="text-center p-10">
-      <p class="text-red-500 font-semibold">{{ error }}</p>
-    </div>
-
-    <!-- محتوى التقرير -->
-    <div v-else id="report-to-print">
-      <!-- رأس التقرير المحسّن -->
-      <header class="mb-8 p-6 bg-gray-800 text-white rounded-lg">
-        <div class="flex justify-between items-start">
-          <div>
-            <h2 class="text-3xl font-bold tracking-tight">Delta Trans</h2>
-            <p class="text-base text-gray-300">تقرير طلبات الوقود</p>
-          </div>
-          <div class="text-left text-sm">
-            <p class="font-semibold">تاريخ الطباعة</p>
-            <p class="font-mono text-gray-300">{{ new Date().toLocaleString() }}</p>
-          </div>
-        </div>
-      </header>
-
-      <!-- قسم خيارات التقرير (الفلاتر) -->
-      <div v-if="hasActiveFilters" class="mt-4 border-t pt-4">
-        <h3 class="text-sm font-bold text-gray-700 mb-2">خيارات التقرير:</h3>
-        <div class="flex flex-wrap gap-2">
-          <div v-for="(value, key) in displayFilters" :key="key" class="filter-badge">
-            <span class="filter-label">{{ filterLabels[key] || key }}:</span>
-            <span class="filter-value">{{ value }}</span>
-          </div>
-        </div>
+  <div class="bg-gray-100 font-sans print:bg-white">
+    <div class="max-w-5xl mx-auto p-4">
+      <!-- شريط الإجراءات (يختفي عند الطباعة) -->
+      <div
+        class="print-hide mb-6 flex justify-between items-center bg-white p-3 rounded-lg shadow-sm"
+      >
+        <h1 class="text-lg font-bold text-gray-700">معاينة طباعة التقرير</h1>
+        <AppButton @click="triggerPrint" :disabled="loading" variant="primary">
+          <PrinterIcon class="w-5 h-5 ml-2" />
+          اطبع الآن
+        </AppButton>
       </div>
 
-      <!-- جدول البيانات -->
-      <table class="w-full text-right border-collapse mt-8">
-        <thead class="bg-gray-100 text-sm text-gray-600 uppercase">
-          <tr>
-            <th
-              v-for="header in tableHeaders"
-              :key="header.key"
-              class="py-3 px-4 font-semibold border-b-2 border-gray-200"
-            >
-              {{ header.label }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-if="reportData && reportData.length > 0"
-            v-for="item in reportData"
-            :key="item.id"
-            class="text-sm text-gray-800 border-b border-gray-200 hover:bg-gray-50"
-          >
-            <td class="py-3 px-4">{{ item.id }}</td>
-            <td class="py-3 px-4">
-              <span v-if="item.status" class="font-semibold">{{ item.status.name }}</span>
-            </td>
-            <td class="py-3 px-4">{{ item.driver?.name || 'N/A' }}</td>
-            <td class="py-3 px-4">{{ item.station?.name || 'N/A' }}</td>
-            <td class="py-3 px-4">{{ item.product?.name || 'N/A' }}</td>
-            <td class="py-3 px-4 font-mono">{{ item.quantity }}</td>
-            <td class="py-3 px-4 font-mono">{{ item.order_date }}</td>
-          </tr>
-          <tr v-else>
-            <td :colspan="tableHeaders.length" class="text-center p-8">
-              <p class="text-gray-500">لا توجد بيانات تطابق خيارات التقرير المحددة.</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- رسائل التحميل والخطأ -->
+      <div v-if="loading" class="text-center p-10 bg-white rounded-lg shadow">
+        <p class="text-gray-600">جاري جلب بيانات التقرير...</p>
+      </div>
+      <div v-else-if="error" class="text-center p-10 bg-white rounded-lg shadow">
+        <p class="text-red-500 font-semibold">{{ error }}</p>
+      </div>
+
+      <!-- محتوى التقرير بالتصميم الجديد -->
+      <div v-else id="report-to-print" class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- 1. رأس التقرير المبتكر -->
+        <header class="relative text-white p-8 bg-wave">
+          <div class="relative z-10 flex justify-between items-start">
+            <div>
+              <h2 class="text-3xl font-bold">تقرير طلبات الوقود</h2>
+              <p class="text-base opacity-80 mt-1">شركة الأسطول لنقل الوقود ومشتقاته</p>
+            </div>
+            <div class="text-right text-sm">
+              <p class="font-semibold">تاريخ الطباعة</p>
+              <p class="font-mono opacity-90">{{ new Date().toLocaleDateString('ar-SA') }}</p>
+            </div>
+          </div>
+          <div class="wave-shape"></div>
+        </header>
+
+        <main class="p-8">
+          <!-- 2. قسم خيارات التقرير (الفلاتر) -->
+          <section v-if="hasActiveFilters" class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">خيارات التقرير المحددة</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div
+                v-for="(value, key) in displayFilters"
+                :key="key"
+                class="bg-gray-50 border border-gray-200 rounded-lg p-3"
+              >
+                <p class="text-xs text-gray-500 uppercase">{{ filterLabels[key] || key }}</p>
+                <p class="text-sm font-bold text-gray-800">{{ value }}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. جدول البيانات المحسّن -->
+          <section>
+            <div class="overflow-hidden rounded-lg border border-gray-200">
+              <table class="w-full text-right">
+                <thead class="bg-gray-800 text-sm text-white uppercase">
+                  <tr>
+                    <th
+                      v-for="header in tableHeaders"
+                      :key="header.key"
+                      class="py-3 px-4 font-semibold"
+                    >
+                      {{ header.label }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <template v-if="reportData && reportData.length > 0">
+                    <tr
+                      v-for="item in reportData"
+                      :key="item.id"
+                      class="text-sm text-gray-800 hover:bg-gray-50"
+                    >
+                      <td class="py-3 px-4 font-mono">{{ item.id }}</td>
+                      <td class="py-3 px-4">
+                        <span
+                          v-if="item.status"
+                          class="py-1 px-2.5 rounded-full font-semibold text-xs text-white"
+                          :style="{ backgroundColor: item.status.color || '#6c757d' }"
+                        >
+                          {{ item.status.name }}
+                        </span>
+                      </td>
+                      <td class="py-3 px-4">{{ item.driver?.name || 'N/A' }}</td>
+                      <td class="py-3 px-4">{{ item.station?.name || 'N/A' }}</td>
+                      <td class="py-3 px-4">{{ item.product?.name || 'N/A' }}</td>
+                      <td class="py-3 px-4 font-mono font-semibold">
+                        {{ new Intl.NumberFormat().format(item.quantity) }}
+                      </td>
+                      <td class="py-3 px-4 font-mono">{{ item.order_date }}</td>
+                    </tr>
+                  </template>
+                  <tr v-else>
+                    <td :colspan="tableHeaders.length" class="text-center p-8">
+                      <p class="text-gray-500">لا توجد بيانات تطابق خيارات التقرير المحددة.</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <!-- 4. تذييل التقرير -->
+        <footer class="p-6 text-center text-xs text-gray-500 border-t">
+          <p>جميع الحقوق محفوظة © {{ new Date().getFullYear() }} شركة الأسطول</p>
+        </footer>
+      </div>
     </div>
   </div>
 </template>
@@ -188,60 +216,53 @@ const triggerPrint = () => window.print()
 </script>
 
 <style>
-/* أنماط الشارات (تبقى كما هي) */
-.filter-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  font-size: 12px;
-}
-.filter-label {
-  color: #4b5563;
-  margin-left: 4px;
-}
-.filter-value {
-  color: #111827;
-  font-weight: 600;
+/* تصميم الأمواج والتدرج اللوني */
+.bg-wave {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-/* === [بداية الحل الدقيق هنا] === */
-/* كتلة CSS خاصة بالطباعة */
+.wave-shape {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,149.3C672,117,768,107,864,128C960,149,1056,203,1152,208C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+/* إعدادات الطباعة */
 @media print {
   .print-hide {
     display: none !important;
   }
   body {
     background-color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   #report-to-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
   }
-
-  /* هذا هو الجزء الأهم: إجبار المتصفح على طباعة الألوان */
-  header.bg-gray-800,
-  .filter-badge,
-  thead.bg-gray-100 {
-    -webkit-print-color-adjust: exact !important; /* For Chrome, Safari */
-    print-color-adjust: exact !important; /* For Firefox */
+  .bg-wave,
+  thead.bg-gray-800 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-
-  /* ضمان أن يكون لون النص أبيض في الترويسة الداكنة */
-  header.bg-gray-800,
-  header.bg-gray-800 * {
+  thead.bg-gray-800,
+  thead.bg-gray-800 * {
     color: white !important;
   }
-  header.bg-gray-800 p.text-gray-300,
-  header.bg-gray-800 p.text-gray-300 * {
-    color: #d1d5db !important; /* gray-300 */
+  main {
+    padding: 1.5rem !important;
   }
 }
-/* === [نهاية الحل الدقيق هنا] === */
 </style>
