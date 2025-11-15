@@ -126,6 +126,7 @@ const allNavLinks = shallowRef([
       { name: 'الشركات', routeName: 'CompaniesList', permission: 'company.view' },
       { name: 'المناطق', routeName: 'RegionsList', permission: 'region.view' },
       { name: 'المحطات', routeName: 'StationsList', permission: 'station.view' },
+      { name: 'طبيعة العمل', routeName: 'work-natures', permission: 'order_status.view' },
       { name: 'السائقون', routeName: 'DriversList', permission: 'driver.view' },
       { name: 'الشاحنات', routeName: 'TrucksList', permission: 'truck.view' },
       { name: 'المنتجات', routeName: 'ProductsList', permission: 'product.view' },

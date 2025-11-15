@@ -1,25 +1,43 @@
-<!-- src/views/drivers/DriverModal.vue -->
 <template>
   <div
     v-if="isOpen"
-    class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40"
+    class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40 p-4"
     @click.self="close"
   >
+    <!-- --- بداية التعديل --- -->
     <div
-      class="bg-surface-section rounded-lg shadow-xl p-6 w-full max-w-lg transform transition-all duration-300 scale-95"
+      class="bg-surface-section rounded-lg shadow-xl w-full max-w-lg transform transition-all duration-300 scale-95 flex flex-col max-h-[90vh]"
       :class="{ 'scale-100': isOpen }"
     >
-      <div class="flex justify-between items-center border-b border-surface-border pb-3 mb-5">
+      <!-- 1. الرأس (Header) -->
+      <div
+        class="flex-shrink-0 flex justify-between items-center border-b border-surface-border p-4"
+      >
         <h3 class="text-lg font-semibold text-text-primary">{{ title }}</h3>
-        <button @click="close" class="text-text-muted hover:text-text-primary">&times;</button>
+        <button
+          @click="close"
+          class="text-text-muted hover:text-text-primary text-2xl leading-none"
+        >
+          &times;
+        </button>
       </div>
 
-      <DriverForm :initial-data="driverData" :is-saving="isSaving" @submit="handleFormSubmit" />
+      <!-- 2. الجسم (Body) - سيحتوي على النموذج القابل للتمرير -->
+      <div class="flex-grow overflow-y-auto">
+        <DriverForm
+          :initial-data="driverData"
+          :is-saving="isSaving"
+          @submit="handleFormSubmit"
+          class="p-4"
+        />
+      </div>
     </div>
+    <!-- --- نهاية التعديل --- -->
   </div>
 </template>
 
 <script setup>
+// ... (السكربت يبقى كما هو بدون تغيير)
 import { ref, computed, watch } from 'vue'
 import DriverForm from './DriverForm.vue'
 

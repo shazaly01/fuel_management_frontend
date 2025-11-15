@@ -20,7 +20,12 @@
         </button>
       </div>
 
-      <FuelOrderForm :initial-data="orderData" :is-saving="isSaving" @submit="handleFormSubmit" />
+      <FuelOrderForm
+        :initial-data="orderData"
+        :is-saving="isSaving"
+        :locked-driver="driver"
+        @submit="handleFormSubmit"
+      />
     </div>
   </div>
 </template>
@@ -33,6 +38,7 @@ const props = defineProps({
   modelValue: { type: Boolean, default: false },
   order: { type: Object, default: null },
   isSaving: { type: Boolean, default: false },
+  driver: { type: Object, default: null },
 })
 
 const emit = defineEmits(['update:modelValue', 'save'])
@@ -40,9 +46,12 @@ const emit = defineEmits(['update:modelValue', 'save'])
 const isOpen = ref(props.modelValue)
 const orderData = ref(props.order)
 
-const title = computed(() =>
-  props.order && props.order.id ? 'تعديل طلب وقود' : 'إضافة طلب وقود جديد',
-)
+const title = computed(() => {
+  if (props.driver) {
+    return `إضافة طلبية للسائق: ${props.driver.name}`
+  }
+  return props.order && props.order.id ? 'تعديل طلب وقود' : 'إضافة طلب وقود جديد'
+})
 
 watch(
   () => props.modelValue,

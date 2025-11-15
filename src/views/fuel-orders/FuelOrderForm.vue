@@ -4,7 +4,21 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- العمود الأول -->
       <div class="space-y-4">
-        <DriversDropdown id="order-driver" label="السائق" v-model="form.driver_id" required />
+        <div v-if="!lockedDriver">
+          <DriversDropdown id="order-driver" label="السائق" v-model="form.driver_id" required />
+        </div>
+        <div v-else>
+          <label class="block text-sm font-medium text-gray-700 dark:text-text-secondary mb-1"
+            >السائق</label
+          >
+          <div
+            class="mt-1 p-3 rounded-md border-2 transition-colors duration-200 bg-gray-100 border-gray-300 dark:bg-surface-ground dark:border-surface-border cursor-not-allowed"
+          >
+            <p class="font-semibold text-gray-800 dark:text-text-primary">
+              {{ lockedDriver.name }}
+            </p>
+          </div>
+        </div>
 
         <StationsDropdown id="order-station" label="المحطة" v-model="form.station_id" required />
 
@@ -20,14 +34,7 @@
 
       <!-- العمود الثاني -->
       <div class="space-y-4">
-        <AppInput
-          id="order-quantity"
-          label="الكمية"
-          type="number"
-          step="0.01"
-          v-model="form.quantity"
-          placeholder="ادخل الكمية"
-        />
+        <QuantityInput id="order-quantity" label="الكمية" v-model="form.quantity" />
 
         <AppInput
           id="order-date"
@@ -42,6 +49,14 @@
           label="تاريخ التسليم (اختياري)"
           type="datetime-local"
           v-model="form.delivery_date"
+        />
+
+        <AppInput
+          id="order-notification-number"
+          label="رقم الإشعار (اختياري)"
+          type="text"
+          v-model="form.notification_number"
+          placeholder="ادخل رقم الإشعار"
         />
 
         <div>
@@ -81,6 +96,7 @@ import DriversDropdown from '@/components/forms/DriversDropdown.vue'
 import StationsDropdown from '@/components/forms/StationsDropdown.vue'
 import ProductsDropdown from '@/components/forms/ProductsDropdown.vue'
 import OrderStatusesDropdown from '@/components/forms/OrderStatusesDropdown.vue'
+import QuantityInput from '@/components/ui/QuantityInput.vue'
 
 const props = defineProps({
   initialData: {
@@ -91,6 +107,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  lockedDriver: { type: Object, default: null },
 })
 
 const emit = defineEmits(['submit'])
@@ -130,6 +147,7 @@ watch(
         // تأكد من أن القيم null لا تظهر كـ "null" في الحقول
         quantity: newData.quantity || null,
         notes: newData.notes || '',
+        notification_number: newData.notification_number || '',
         // تحويل تنسيق تاريخ التسليم ليتوافق مع حقل الإدخال
         delivery_date: formatDateTimeForInput(newData.delivery_date),
         // تأكد من أن الـ IDs موجودة
@@ -146,14 +164,25 @@ watch(
         station_id: '',
         product_id: '',
         order_status_id: '',
-        quantity: null,
+        quantity: 40000,
         order_date: new Date().toISOString().slice(0, 10), // تاريخ اليوم كقيمة افتراضية
         delivery_date: '',
         notes: '',
+        notification_number: '',
       }
     }
   },
   { immediate: true, deep: true },
+)
+
+watch(
+  () => props.lockedDriver,
+  (driver) => {
+    if (driver && driver.id) {
+      form.value.driver_id = driver.id
+    }
+  },
+  { immediate: true },
 )
 
 const handleSubmit = () => {

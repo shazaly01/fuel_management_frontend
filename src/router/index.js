@@ -12,6 +12,7 @@ import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/dashboard/DashboardView.vue'
 import CompaniesList from '@/views/companies/CompaniesList.vue'
 import StationsList from '@/views/stations/StationsList.vue'
+import WorkNaturesList from '@/views/work-natures/WorkNaturesList.vue'
 import DriversList from '@/views/drivers/DriversList.vue'
 import TrucksList from '@/views/trucks/TrucksList.vue'
 import ProductsList from '@/views/products/ProductsList.vue'
@@ -25,6 +26,7 @@ import OrderReport from '@/views/reports/OrderReport.vue' // <-- [جديد]
 import StationReport from '@/views/reports/StationReport.vue' // <-- [جديد]
 import FuelOrderPrint from '@/views/print/FuelOrderPrint.vue'
 import FuelOrdersReportPrint from '@/views/print/FuelOrdersReportPrint.vue'
+import MovementOrderPrint from '@/views/print/MovementOrderPrint.vue'
 
 const routes = [
   {
@@ -39,6 +41,15 @@ const routes = [
     component: FuelOrdersReportPrint,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/print/reports/movement-order', // مسار جديد ومستقل
+    name: 'MovementOrderPrint',
+    component: MovementOrderPrint, // <-- استخدام المكون الجديد
+    meta: {
+      requiresAuth: true, // لا يزال محميًا
+    },
+  },
+
   // --- المسارات العامة (لا تتطلب مصادقة) ---
   {
     path: '/',
@@ -82,6 +93,12 @@ const routes = [
         meta: {
           permission: 'region.view',
         },
+      },
+      {
+        path: '/work-natures',
+        name: 'work-natures',
+        component: WorkNaturesList,
+        meta: { permission: 'driver.view' },
       },
 
       {

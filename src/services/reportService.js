@@ -14,4 +14,12 @@ export default {
   getStationReport(params) {
     return apiClient.get('/reports/stations', { params })
   },
+  /**
+   * Fetches the movement order report data.
+   * @param {object} params - The query parameters for the report (e.g., { date, company_id }).
+   * @returns {Promise} - The Axios promise for the API request.
+   */
+  getMovementOrderReport(params) {
+    return apiClient.get('/reports/movement-order', { params })
+  },
 }

@@ -11,15 +11,15 @@ export const useDriverStore = defineStore('drivers', {
   }),
 
   actions: {
-    async fetchDrivers(page = 1) {
+    async fetchDrivers(page = 1, filters = {}) {
       this.loading = true
       try {
-        const response = await driverService.get(page)
+        const response = await driverService.get(page, filters)
         this.drivers = response.data.data || []
         this.pagination = response.data.meta || {}
       } catch (error) {
         console.error('Failed to fetch drivers:', error)
-        this.drivers = [] // [الإصلاح الحاسم]
+        this.drivers = []
         throw error
       } finally {
         this.loading = false

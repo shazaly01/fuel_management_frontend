@@ -26,6 +26,11 @@ export const useReportStore = defineStore('reports', {
       pagination: {},
       loading: false,
     },
+    movementOrderReport: {
+      data: null, // يبدأ كـ null لأنه كائن واحد وليس مصفوفة
+      loading: false,
+      error: null,
+    },
   }),
 
   actions: {
@@ -84,6 +89,24 @@ export const useReportStore = defineStore('reports', {
         throw error
       } finally {
         this.stationReport.loading = false
+      }
+    },
+
+    async fetchMovementOrderReport(params) {
+      this.movementOrderReport.loading = true
+      this.movementOrderReport.error = null
+      try {
+        const response = await reportService.getMovementOrderReport(params)
+        // البيانات الفعلية موجودة داخل response.data.data
+        this.movementOrderReport.data = response.data.data || null
+      } catch (error) {
+        console.error('Failed to fetch movement order report:', error)
+        this.movementOrderReport.data = null
+        // تخزين رسالة الخطأ لعرضها في الواجهة
+        this.movementOrderReport.error = error.response?.data?.message || error.message
+        throw error // السماح للمكون بمعرفة حدوث خطأ
+      } finally {
+        this.movementOrderReport.loading = false
       }
     },
   },

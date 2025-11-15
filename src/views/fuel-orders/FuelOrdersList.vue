@@ -1,89 +1,51 @@
 <template>
   <div>
-    <!-- رأس الصفحة -->
+    <!-- رأس الصفحة والفلاتر -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-text-primary">إدارة طلبات الوقود</h1>
-
-      <!-- === [بداية التعديل هنا] === -->
       <div class="flex items-center space-x-2 space-x-reverse">
-        <!-- زر طباعة التقرير الجديد -->
+        <AppButton
+          @click="printMovementOrder"
+          variant="outline"
+          class="bg-sky-500 text-white hover:bg-sky-600"
+        >
+          <!-- يمكنك استخدام أيقونة مناسبة هنا -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 ml-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path
+              fill-rule="evenodd"
+              d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h.01a1 1 0 100-2H10zm3 0a1 1 0 000 2h.01a1 1 0 100-2H13z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          طباعة أمر الحركة
+        </AppButton>
         <AppButton @click="openReportPrintPage" variant="outline">
           <PrinterIcon class="w-5 h-5 ml-2" />
           طباعة التقرير
         </AppButton>
-        <!-- زر إضافة طلب القديم -->
         <AppButton @click="openOrderModal()"> إضافة طلب </AppButton>
       </div>
-      <!-- === [نهاية التعديل هنا] === -->
     </div>
-
-    <!-- [جديد] إضافة مكون الفلاتر -->
     <OrderReportFilters @apply-filters="applyFilters" @reset-filters="resetFilters" />
 
-    <!-- جدول عرض الطلبات -->
-    <AppCard>
-      <AppTable
-        :headers="tableHeaders"
-        :items="fuelOrders || []"
-        :is-loading="loading"
-        @row-click="openOrderModal"
-      >
-        <!-- قوالب الخلايا المخصصة -->
-        <template #cell-status="{ item }">
-          <span
-            v-if="item.status"
-            class="px-3 py-1 text-sm font-semibold rounded-full text-white"
-            :style="{ backgroundColor: item.status.color || '#6B7280' }"
-          >
-            {{ item.status.name }}
-          </span>
-        </template>
-        <template #cell-driver="{ item }">
-          <span>{{ item.driver?.name || 'غير محدد' }}</span>
-        </template>
-        <template #cell-station="{ item }">
-          <span>{{ item.station?.name || 'غير محدد' }}</span>
-        </template>
-        <template #cell-product="{ item }">
-          <span>{{ item.product?.name || 'غير محدد' }}</span>
-        </template>
+    <!-- استدعاء المكون الجديد وتمرير البيانات والأحداث إليه -->
+    <FuelOrdersTable
+      :items="fuelOrders"
+      :pagination="pagination"
+      :is-loading="loading"
+      @edit-order="openOrderModal"
+      @delete-order="openDeleteDialog"
+      @print-order="openPrintPage"
+      @page-change="handlePageChange"
+    />
 
-        <!-- عمود الإجراءات المعدل -->
-        <template #cell-actions="{ item }">
-          <div class="flex items-center justify-end space-x-2 space-x-reverse">
-            <!-- زر طباعة الطلب الواحد -->
-            <button
-              @click.stop="openPrintPage(item.id)"
-              class="p-2 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              title="طباعة الطلب"
-            >
-              <PrinterIcon class="w-5 h-5" />
-            </button>
-
-            <!-- فاصل بصري -->
-            <div class="h-5 w-px bg-gray-200 dark:bg-gray-600"></div>
-
-            <!-- الأزرار القديمة -->
-            <button
-              @click.stop="openOrderModal(item)"
-              class="font-semibold text-blue-500 hover:text-blue-700 px-2"
-            >
-              تعديل
-            </button>
-            <button
-              @click.stop="openDeleteDialog(item)"
-              class="font-semibold text-danger hover:text-red-700 px-2"
-            >
-              حذف
-            </button>
-          </div>
-        </template>
-      </AppTable>
-
-      <AppPagination :meta="pagination" @page-change="handlePageChange" />
-    </AppCard>
-
-    <!-- النوافذ المنبثقة (Modals) -->
+    <!-- النوافذ المنبثقة -->
     <FuelOrderModal
       v-model="isModalOpen"
       :order="selectedOrder"
@@ -107,37 +69,18 @@ import { useToast } from 'vue-toastification'
 import { useRouter } from 'vue-router'
 
 // استيراد المكونات
-import AppTable from '@/components/ui/AppTable.vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import AppCard from '@/components/ui/AppCard.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
-import AppPagination from '@/components/ui/AppPagination.vue'
 import FuelOrderModal from './FuelOrderModal.vue'
 import OrderReportFilters from '@/views/reports/OrderReportFilters.vue'
 import { PrinterIcon } from '@heroicons/vue/24/outline'
+import FuelOrdersTable from './FuelOrdersTable.vue' // <-- المكون الجديد
 
 // إعدادات
 const router = useRouter()
 const fuelOrderStore = useFuelOrderStore()
 const { fuelOrders, loading, pagination } = storeToRefs(fuelOrderStore)
 const toast = useToast()
-
-// --- [بداية الكود الجديد] ---
-// مرجع للوصول إلى مكون الفلاتر
-const filtersComponent = ref(null)
-// --- [نهاية الكود الجديد] ---
-
-// تعريف أعمدة الجدول
-const tableHeaders = [
-  { key: 'id', label: '#' },
-  { key: 'status', label: 'الحالة' },
-  { key: 'driver', label: 'السائق' },
-  { key: 'station', label: 'المحطة' },
-  { key: 'product', label: 'المنتج' },
-  { key: 'quantity', label: 'الكمية' },
-  { key: 'order_date', label: 'تاريخ الطلب' },
-  { key: 'actions', label: 'إجراءات', class: 'text-left' },
-]
 
 // منطق الفلاتر والترقيم
 const currentFilters = ref({ page: 1 })
@@ -175,16 +118,12 @@ const openPrintPage = (orderId) => {
   window.open(routeData.href, '_blank')
 }
 
-// --- [بداية الكود الجديد والمُحدَّث] ---
 const openReportPrintPage = () => {
-  // 1. تنظيف الفلاتر الرقمية
   const cleanNumericFilters = Object.fromEntries(
     Object.entries(currentFilters.value).filter(
       ([key, v]) => v !== '' && v !== null && key !== 'page',
     ),
   )
-
-  // 2. بناء الرابط مع الفلاتر الرقمية ومعامل الطباعة
   const routeData = router.resolve({
     name: 'FuelOrdersReportPrint',
     query: {
@@ -192,11 +131,8 @@ const openReportPrintPage = () => {
       printable: true,
     },
   })
-
-  // 3. فتح الرابط في تبويب جديد
   window.open(routeData.href, '_blank')
 }
-// --- [نهاية الكود الجديد والمُحدَّث] ---
 
 // جلب البيانات عند تحميل المكون
 onMounted(() => {
@@ -253,5 +189,34 @@ const deleteSelectedOrder = async () => {
       orderToDelete.value = null
     }
   }
+}
+
+/**
+ * يقوم بإنشاء وطباعة تقرير "أمر الحركة" بناءً على الفلاتر الحالية.
+ */
+const printMovementOrder = () => {
+  // === [بداية التعديل هنا] ===
+  // استخدم start_date من الفلاتر الحالية كتاريخ للتقرير
+  const reportDate = currentFilters.value.start_date
+  const companyId = currentFilters.value.company_id
+
+  // 1. التحقق من وجود الفلاتر المطلوبة
+  if (!reportDate || !companyId) {
+    toast.error('يرجى تحديد تاريخ بداية وشركة من الفلاتر لطباعة أمر الحركة.')
+    return
+  }
+  // === [نهاية التعديل هنا] ===
+
+  // 2. بناء الرابط لصفحة الطباعة
+  const routeData = router.resolve({
+    name: 'MovementOrderPrint',
+    query: {
+      date: reportDate, // <-- نمرر التاريخ تحت اسم 'date' كما يتوقعه الـ API
+      company_id: companyId,
+    },
+  })
+
+  // 3. فتح صفحة الطباعة في تبويب جديد
+  window.open(routeData.href, '_blank')
 }
 </script>
