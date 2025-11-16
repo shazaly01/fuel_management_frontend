@@ -19,6 +19,7 @@
         @delete="openDeleteDialog"
         @preview-image="openImagePreview"
         @create-order="openCreateOrderModal"
+        @edit="openDriverModal"
       />
 
       <!-- مكون الترقيم -->

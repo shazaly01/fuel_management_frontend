@@ -1,4 +1,4 @@
-<!-- src/views/dashboard/InteractiveSummary.vue -->
+<!-- src/views/dashboard/InteractiveSummary.vue (النسخة النهائية والمحسّنة) -->
 <template>
   <div class="mt-8">
     <h2 class="text-2xl font-semibold text-text-primary mb-4">ملخص الطلبات التفاعلي</h2>
@@ -68,8 +68,35 @@
           :items="orderDetails"
           :row-clickable="false"
         >
+          <!-- ==================== [بداية التعديلات] ==================== -->
+
+          <!-- عرض اسم المحطة -->
           <template #cell-station="{ item }">{{ item.station?.name || 'N/A' }}</template>
+
+          <!-- عرض اسم الشركة -->
+          <template #cell-company="{ item }">{{ item.station?.company?.name || 'N/A' }}</template>
+
+          <!-- عرض اسم السائق -->
           <template #cell-driver="{ item }">{{ item.driver?.name || 'N/A' }}</template>
+
+          <!-- عرض رقم الإشعار -->
+          <template #cell-notification_number="{ item }">{{
+            item.notification_number || '-'
+          }}</template>
+
+          <!-- عرض قائمة تغيير الحالة -->
+          <template #cell-actions="{ item }">
+            <div class="w-40">
+              <OrderStatusesDropdown
+                :id="`status-update-${item.id}`"
+                label=""
+                :model-value="item.status.id"
+                @update:model-value="(newStatusId) => handleStatusChange(item, newStatusId)"
+              />
+            </div>
+          </template>
+
+          <!-- ==================== [نهاية التعديلات] ==================== -->
         </AppTable>
 
         <div v-else class="text-center py-10 text-text-muted">
@@ -87,29 +114,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useReportStore } from '@/stores/reportStore'
+import { useFuelOrderStore } from '@/stores/fuelOrderStore'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
 
 // استيراد المكونات
 import AppCard from '@/components/ui/AppCard.vue'
 import AppTable from '@/components/ui/AppTable.vue'
+import OrderStatusesDropdown from '@/components/forms/OrderStatusesDropdown.vue'
 
-// تعريف الـ props التي سيستقبلها المكون
+// 1. تعريف الحدث الذي سيتم إطلاقه
+const emit = defineEmits(['status-updated'])
+
+// تعريف الـ props
 const props = defineProps({
-  orderSummary: {
-    type: Array,
-    default: () => [],
-  },
-  isLoading: {
-    type: Boolean,
-    default: true,
-  },
+  orderSummary: { type: Array, default: () => [] },
+  isLoading: { type: Boolean, default: true },
 })
 
-// إعدادات
+// إعدادات الـ Stores
 const reportStore = useReportStore()
+const fuelOrderStore = useFuelOrderStore()
 const toast = useToast()
 
 // حالة عرض التفاصيل
@@ -117,19 +144,19 @@ const selectedStatusId = ref(null)
 const selectedStatusName = ref(null)
 const detailsLoading = ref(false)
 
-// استخدام orderReport من الـ store لعرض التفاصيل
 const { orderReport } = storeToRefs(reportStore)
-// سنقوم بإنشاء computed property لتسهيل الوصول إلى البيانات
-import { computed } from 'vue'
 const orderDetails = computed(() => orderReport.value.data)
 
-// أعمدة جدول التفاصيل
+// تحديث أعمدة جدول التفاصيل
 const detailsTableHeaders = [
   { key: 'id', label: '#' },
   { key: 'station', label: 'المحطة' },
+  { key: 'company', label: 'الشركة' },
   { key: 'driver', label: 'السائق' },
   { key: 'quantity', label: 'الكمية' },
+  { key: 'notification_number', label: 'رقم الإشعار' },
   { key: 'order_date', label: 'تاريخ الطلب' },
+  { key: 'actions', label: 'تغيير الحالة', class: 'text-left' },
 ]
 
 // دالة جلب تفاصيل الطلبات عند النقر
@@ -137,14 +164,33 @@ const handleStatusClick = async (status) => {
   selectedStatusId.value = status.id
   selectedStatusName.value = status.name
   detailsLoading.value = true
-
   try {
-    // إعادة استخدام دالة fetchOrderReport الموجودة في الـ store
     await reportStore.fetchOrderReport({ order_status_id: status.id })
   } catch (err) {
     toast.error(`فشل تحميل تفاصيل طلبات الحالة: ${status.name}`)
   } finally {
     detailsLoading.value = false
+  }
+}
+
+// دالة تحديث حالة الطلب
+const handleStatusChange = async (order, newStatusId) => {
+  // منع التحديث إذا لم تتغير الحالة
+  if (order.status.id === newStatusId) return
+
+  try {
+    // استدعاء دالة التحديث من الـ store
+    await fuelOrderStore.updateFuelOrder(order.id, { order_status_id: newStatusId })
+
+    toast.success(`تم تحديث حالة الطلب #${order.id} بنجاح.`)
+
+    // إعادة تحميل تفاصيل الحالة الحالية لتعكس التغييرات
+    await reportStore.fetchOrderReport({ order_status_id: selectedStatusId.value })
+
+    // 2. إطلاق الحدث لإعلام المكون الأب بضرورة تحديث الإحصائيات
+    emit('status-updated')
+  } catch (err) {
+    toast.error(`فشل تحديث حالة الطلب #${order.id}.`)
   }
 }
 </script>

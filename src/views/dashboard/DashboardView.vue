@@ -1,4 +1,4 @@
-<!-- src/views/dashboard/DashboardView.vue (النسخة النهائية المصححة) -->
+<!-- src/views/dashboard/DashboardView.vue (النسخة النهائية الكاملة) -->
 <template>
   <div>
     <!-- عنوان الصفحة -->
@@ -10,14 +10,19 @@
     </div>
 
     <div v-else>
-      <!-- استخدام المسارات الصحيحة هنا -->
       <DashboardStatsCards :stats="dashboardStats" :is-loading="isLoading" />
-      <DashboardInteractiveSummary :order-summary="orderSummary" :is-loading="isLoading" />
+
+      <!-- ==================== [بداية التعديلات] ==================== -->
+      <!-- 1. الاستماع للحدث @status-updated وتشغيل دالة refreshDashboardStats -->
+      <DashboardInteractiveSummary
+        :order-summary="orderSummary"
+        :is-loading="isLoading"
+        @status-updated="refreshDashboardStats"
+      />
+      <!-- ==================== [نهاية التعديلات] ==================== -->
     </div>
   </div>
 </template>
-
-// src/views/dashboard/DashboardView.vue (تعديل في جزء script setup)
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
@@ -32,23 +37,34 @@ const { dashboardStats } = storeToRefs(reportStore)
 const isLoading = ref(true)
 const error = ref(null)
 
-// --- [تم التعديل هنا] ---
-// إضافة تحقق إضافي لضمان أن dashboardStats.value ليس null أو undefined
 const orderSummary = computed(() => {
   if (!dashboardStats.value) {
     return []
   }
-  // الآن بعد أن تأكدنا من وجوده، يمكننا الوصول إلى orders بأمان
-  // هذا الكود سيعمل بشكل صحيح بعد تحديث الباك-إند
   return dashboardStats.value.orders || []
 })
-// --- [نهاية التعديل] ---
+
+// ==================== [بداية التعديلات] ====================
+
+// 2. إنشاء دالة لإعادة جلب الإحصائيات
+const refreshDashboardStats = async () => {
+  try {
+    // لا نعرض مؤشر التحميل الرئيسي، يمكن أن يكون تحديثًا صامتًا
+    await reportStore.fetchDashboardStats()
+  } catch (err) {
+    console.error('Failed to refresh dashboard stats:', err)
+    // يمكن عرض رسالة خطأ صغيرة هنا إذا أردت
+  }
+}
+
+// ==================== [نهاية التعديلات] ====================
 
 onMounted(async () => {
   isLoading.value = true
   error.value = null
   try {
-    await reportStore.fetchDashboardStats()
+    // استدعاء الدالة الجديدة عند التحميل الأولي أيضًا
+    await refreshDashboardStats()
   } catch (err) {
     console.error('Failed to fetch dashboard stats:', err)
     error.value = err.message
