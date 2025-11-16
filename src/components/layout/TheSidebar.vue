@@ -91,22 +91,13 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import {
   HomeIcon,
-  UserIcon,
-  BuildingOffice2Icon,
-  UsersIcon,
-  TruckIcon,
-  MapPinIcon,
   DocumentChartBarIcon,
-  ShieldCheckIcon,
   ArrowLeftOnRectangleIcon,
   XMarkIcon,
-  BeakerIcon,
   Cog6ToothIcon,
   ArchiveBoxIcon,
-  AdjustmentsHorizontalIcon,
   ChevronDownIcon,
   ShoppingCartIcon,
-  ListBulletIcon,
 } from '@heroicons/vue/24/outline'
 
 defineEmits(['close-sidebar'])
@@ -127,7 +118,6 @@ const allNavLinks = shallowRef([
       { name: 'المناطق', routeName: 'RegionsList', permission: 'region.view' },
       { name: 'المحطات', routeName: 'StationsList', permission: 'station.view' },
       { name: 'طبيعة العمل', routeName: 'work-natures', permission: 'order_status.view' },
-      { name: 'السائقون', routeName: 'DriversList', permission: 'driver.view' },
       { name: 'الشاحنات', routeName: 'TrucksList', permission: 'truck.view' },
       { name: 'المنتجات', routeName: 'ProductsList', permission: 'product.view' },
       { name: 'حالات الطلب', routeName: 'OrderStatusesList', permission: 'order_status.view' },
@@ -138,6 +128,7 @@ const allNavLinks = shallowRef([
     icon: ShoppingCartIcon,
     permission: 'fuel_order.view',
     children: [
+      { name: 'السائقون', routeName: 'DriversList', permission: 'driver.view' },
       { name: 'طلبات الوقود', routeName: 'FuelOrdersList', permission: 'fuel_order.view' },
     ],
   },
