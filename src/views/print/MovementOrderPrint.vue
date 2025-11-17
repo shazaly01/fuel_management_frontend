@@ -31,10 +31,9 @@
 
     <!-- محتوى التقرير الفعلي -->
     <div v-else-if="reportData" id="report-to-print" class="max-w-6xl mx-auto bg-white p-6">
-      <!-- [بداية التعديل] - فصل الجدول عن التذييل -->
-
-      <!-- 1. حاوية الجدول (للمحتوى المتغير) -->
+      <!-- [تعديل] تم دمج التذييل داخل الجدول الرئيسي باستخدام tfoot -->
       <table class="w-full report-container border-collapse">
+        <!-- 1. رأس الجدول (Header) -->
         <thead class="report-header">
           <tr>
             <th class="p-0 align-top" :colspan="8">
@@ -45,7 +44,7 @@
                   <div class="text-right">
                     <h2 class="text-2xl font-bold">شركة الأسطول</h2>
                     <p class="font-semibold text-sm">لنقل الوقود ومشتقاته</p>
-                    <p class="font-mono text-xs mt-1">📞 091 544 5681</p>
+                    <p class="font-mono text-xs mt-1 ltr-text">📞 091 544 5681</p>
                     <p class="text-xs">📍 العنوان، ليبيا - بنغازي</p>
                   </div>
                 </div>
@@ -95,6 +94,8 @@
             <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم الهاتف</th>
           </tr>
         </thead>
+
+        <!-- 2. محتوى الجدول (Body) -->
         <tbody class="report-body text-sm">
           <tr
             v-for="(order, index) in reportData.orders"
@@ -115,28 +116,37 @@
             <td class="border-2 border-black p-2 text-center">{{ order.driver?.phone_number }}</td>
           </tr>
         </tbody>
+
+        <!-- 3. تذييل الجدول (Footer) -->
+        <tfoot class="report-footer">
+          <tr>
+            <td :colspan="8" class="p-0">
+              <!-- مساحة فارغة فوق التذييل لتجنب التداخل -->
+              <div class="h-24"></div>
+              <!-- حاوية التذييل الفعلية -->
+              <div class="grid grid-cols-2 gap-x-8 items-end">
+                <!-- توقيع المكلف -->
+                <div class="flex flex-col items-center">
+                  <span class="w-full border-b-2 border-dotted border-black"></span>
+                  <strong class="mt-2 font-bold">توقيع المكلف</strong>
+                </div>
+                <!-- اعتماد الختم -->
+                <div class="relative flex flex-col items-center">
+                  <!-- صورة الختم -->
+                  <img
+                    src="/stamp.png"
+                    alt="ختم الشركة"
+                    class="absolute bottom-2 h-28 w-28 opacity-90"
+                  />
+                  <span class="w-full border-b-2 border-dotted border-black"></span>
+                  <strong class="mt-2 font-bold">اعتماد الختم</strong>
+                </div>
+              </div>
+              <div class="page-number"></div>
+            </td>
+          </tr>
+        </tfoot>
       </table>
-
-      <!-- 2. حاوية التذييل (للمحتوى الثابت في أسفل الصفحة) -->
-      <div class="report-footer-container">
-        <div class="grid grid-cols-2 gap-x-8 items-end">
-          <!-- توقيع المكلف -->
-          <div class="flex flex-col items-center">
-            <span class="w-full border-b-2 border-dotted border-black"></span>
-            <strong class="mt-2 font-bold">توقيع المكلف</strong>
-          </div>
-          <!-- اعتماد الختم -->
-          <div class="relative flex flex-col items-center">
-            <!-- صورة الختم (موضوعة بشكل مطلق فوق الخط) -->
-            <img src="/stamp.png" alt="ختم الشركة" class="absolute bottom-2 h-28 w-28 opacity-90" />
-            <span class="w-full border-b-2 border-dotted border-black"></span>
-            <strong class="mt-2 font-bold">اعتماد الختم</strong>
-          </div>
-        </div>
-        <div class="page-number"></div>
-      </div>
-
-      <!-- [نهاية التعديل] -->
     </div>
   </div>
 </template>
@@ -168,6 +178,10 @@ const triggerPrint = () => window.print()
 </script>
 
 <style>
+.ltr-text {
+  direction: ltr;
+  text-align: center; /* إعادة المحاذاة للمنتصف بعد تغيير الاتجاه */
+}
 .shadow-offset-dark {
   box-shadow: -4px -4px 5px 0px rgb(0 0 0 / 0.5);
 }
@@ -194,18 +208,19 @@ const triggerPrint = () => window.print()
   .page-break-inside-avoid {
     page-break-inside: avoid;
   }
+
+  /* --- [بداية التعديل هنا] --- */
+  /* ضمان تكرار رأس وتذييل الجدول على كل صفحة */
   .report-header {
     display: table-header-group;
   }
-
-  /* --- [بداية التعديل هنا] --- */
-  /* تثبيت حاوية التذييل في أسفل كل صفحة مطبوعة */
-  .report-footer-container {
-    position: fixed;
-    bottom: 1.5cm; /* نفس قيمة هامش الصفحة السفلي */
-    left: 1.5cm;
-    right: 1.5cm;
-    height: 100px; /* ارتفاع تقريبي للتذييل */
+  .report-footer {
+    display: table-footer-group;
+  }
+  /* إزالة أي حدود أو padding من الخلية الحاوية للتذييل */
+  .report-footer td {
+    border: none !important;
+    padding: 0 !important;
   }
   /* --- [نهاية التعديل هنا] --- */
 
