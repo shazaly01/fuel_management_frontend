@@ -92,6 +92,7 @@ const toast = useToast()
 
 const tableHeaders = [
   { key: 'name', label: 'اسم المحطة' },
+  { key: 'station_number', label: 'رقم المحطة' },
   { key: 'region', label: 'المنطقة' },
   { key: 'address', label: 'العنوان' },
   { key: 'company', label: 'الشركة' },
