@@ -8,18 +8,20 @@ export const useTruckStore = defineStore('trucks', {
     truck: null,
     pagination: {},
     loading: false,
+    activeFilters: { page: 1 },
   }),
 
   actions: {
-    async fetchTrucks(page = 1) {
+    async fetchTrucks(params = { page: 1 }) {
       this.loading = true
+      this.activeFilters = params
       try {
-        const response = await truckService.get(page)
+        const response = await truckService.get(this.activeFilters)
         this.trucks = response.data.data || []
         this.pagination = response.data.meta || {}
       } catch (error) {
         console.error('Failed to fetch trucks:', error)
-        this.trucks = [] // [الإصلاح الحاسم]
+        this.trucks = []
         throw error
       } finally {
         this.loading = false

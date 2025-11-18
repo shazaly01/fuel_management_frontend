@@ -4,9 +4,14 @@ import apiClient from './apiClient'
 const resource = '/stations'
 
 export default {
-  get(page = 1) {
-    return apiClient.get(`${resource}?page=${page}`)
+  /**
+   * [تصحيح] الدالة الآن تقبل كائن params وتمرره بشكل صحيح.
+   * @param {object} params - كائن يحتوي على كل معاملات الاستعلام (e.g., { page: 1, name: 'test' }).
+   */
+  get(params = {}) {
+    return apiClient.get(resource, { params })
   },
+
   find(id) {
     return apiClient.get(`${resource}/${id}`)
   },

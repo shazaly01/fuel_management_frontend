@@ -1,5 +1,6 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <!-- [تعديل] تم تغيير الشبكة إلى 4 أعمدة -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <!-- حقل البحث -->
     <div>
       <AppInput
@@ -7,6 +8,17 @@
         label="البحث"
         v-model="filters.search"
         placeholder="ابحث بالاسم أو الهاتف..."
+        @input="emitFilters"
+      />
+    </div>
+
+    <!-- [إضافة] حقل رقم الرخصة -->
+    <div>
+      <AppInput
+        id="license-number-filter"
+        label="رقم الرخصة"
+        v-model="filters.license_number"
+        placeholder="ابحث برقم الرخصة..."
         @input="emitFilters"
       />
     </div>
@@ -27,7 +39,6 @@
 
     <!-- فلتر طبيعة العمل -->
     <div>
-      <!-- --- بداية التعديل --- -->
       <AppDropdown
         id="work-nature-filter"
         label="طبيعة العمل"
@@ -39,7 +50,6 @@
         option-label="label"
         option-value="value"
       />
-      <!-- --- نهاية التعديل --- -->
     </div>
   </div>
 </template>
@@ -58,9 +68,12 @@ const filters = ref({
   search: '',
   status: '',
   work_nature_id: '',
+  // [إضافة] إضافة الخاصية الجديدة هنا
+  license_number: '',
 })
 
 const emitFilters = useDebounceFn(() => {
+  // لا حاجة لتعديل هنا، سيتم إرسال الكائن كاملاً
   emit('filters-changed', filters.value)
 }, 300)
 

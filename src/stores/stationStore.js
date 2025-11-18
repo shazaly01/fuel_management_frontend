@@ -8,18 +8,22 @@ export const useStationStore = defineStore('stations', {
     station: null,
     pagination: {},
     loading: false,
+    activeFilters: { page: 1 },
   }),
 
   actions: {
-    async fetchStations(page = 1) {
+    async fetchStations(params = { page: 1 }) {
       this.loading = true
+      this.activeFilters = params
+
       try {
-        const response = await stationService.get(page)
+        // تمرير الكائن مباشرة إلى الخدمة المصححة
+        const response = await stationService.get(this.activeFilters)
         this.stations = response.data.data || []
         this.pagination = response.data.meta || {}
       } catch (error) {
         console.error('Failed to fetch stations:', error)
-        this.stations = [] // [الإصلاح الحاسم]
+        this.stations = []
         throw error
       } finally {
         this.loading = false
