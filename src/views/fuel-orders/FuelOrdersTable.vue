@@ -93,6 +93,7 @@ defineEmits(['edit-order', 'delete-order', 'print-order', 'page-change'])
 const tableHeaders = computed(() => {
   const headers = [
     { key: 'id', label: '#' },
+    { key: 'notification_number', label: 'رقم الإشعار' },
     { key: 'status', label: 'الحالة' },
   ]
 
