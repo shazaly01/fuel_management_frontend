@@ -62,7 +62,7 @@
         <span>{{ item.phone_number }}</span>
         <div class="flex items-center space-x-2 space-x-reverse">
           <a
-            :href="`tel:${item.phone_number}`"
+            :href="`tel:+${formatPhoneNumber(item.phone_number)}`"
             @click.stop
             class="text-green-500 hover:text-green-400"
             title="اتصال مباشر"
@@ -79,7 +79,7 @@
             </svg>
           </a>
           <a
-            :href="`https://wa.me/${item.phone_number.replace(/\D/g, '')}`"
+            :href="`https://wa.me/${formatPhoneNumber(item.phone_number)}`"
             target="_blank"
             rel="noopener noreferrer"
             @click.stop
@@ -227,10 +227,52 @@ const statusTranslations = {
   available: 'متاح',
   on_trip: 'في رحلة',
   unavailable: 'غير متاح',
+  wants_to_work: 'يريد عمل',
 }
 const statusClasses = {
   available: 'bg-green-200 text-green-800 dark:bg-green-700 dark:text-green-100',
   on_trip: 'bg-yellow-200 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-100',
   unavailable: 'bg-red-200 text-red-800 dark:bg-red-700 dark:text-red-100',
+  wants_to_work: 'bg-blue-200 text-blue-800 dark:bg-blue-700 dark:text-blue-100',
+}
+
+/**
+ * يقوم بتنسيق رقم الهاتف للشكل الدولي (ليبيا: 218).
+ * @param {string | null | undefined} phoneNumber الرقم المراد تنسيقه.
+ * @returns {string} الرقم المنسق دوليًا.
+ */
+const formatPhoneNumber = (phoneNumber) => {
+  if (!phoneNumber) {
+    return '' // إرجاع سلسلة فارغة إذا لم يكن هناك رقم
+  }
+
+  // 1. إزالة كل ما ليس أرقامًا، ما عدا علامة "+" في البداية
+  let cleaned = phoneNumber.toString().trim().replace(/\s+/g, '')
+
+  // 2. إذا كان الرقم يبدأ بـ "+218"، فهو صحيح بالفعل
+  if (cleaned.startsWith('+218')) {
+    return cleaned.substring(1) // إزالة "+" للرابط wa.me
+  }
+
+  // 3. إزالة أي "+" في أي مكان آخر وتنظيف غير الأرقام
+  cleaned = cleaned.replace(/[^0-9]/g, '')
+
+  // 4. إذا كان الرقم يبدأ بـ "218"، فهو صحيح
+  if (cleaned.startsWith('218')) {
+    return cleaned
+  }
+
+  // 5. إذا كان الرقم يبدأ بـ "09" (مثل 091, 092)، استبدل "0" بـ "218"
+  if (cleaned.startsWith('09')) {
+    return '218' + cleaned.substring(1)
+  }
+
+  // 6. إذا كان الرقم يبدأ بـ "9" (مثل 91, 92)، أضف "218"
+  if (cleaned.startsWith('9')) {
+    return '218' + cleaned
+  }
+
+  // 7. كحل احتياطي، أرجع الرقم المنظف
+  return cleaned
 }
 </script>

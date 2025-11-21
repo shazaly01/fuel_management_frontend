@@ -37,7 +37,7 @@
           <!-- 1. رأس الجدول (Header) -->
           <thead class="report-header">
             <tr>
-              <th class="p-0 align-top" :colspan="8">
+              <th class="p-0 align-top" :colspan="9">
                 <!-- الهيدر العلوي -->
                 <div class="grid grid-cols-12 gap-x-4 mb-4 pb-4 border-b-2 border-gray-300">
                   <div class="col-span-4 flex">
@@ -90,6 +90,7 @@
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم السيارة</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم المقطورة</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">الحمولة</th>
+              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">نوع الوقود</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-auto">المحطة</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم الإشعار</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم الهاتف</th>
@@ -111,6 +112,9 @@
               <td class="border-2 border-black p-2 text-center">
                 {{ order.driver?.truck?.trailer_number }}
               </td>
+              <td class="border-2 border-black p-2 text-center font-semibold">
+                {{ order.product?.name }}
+              </td>
               <td class="border-2 border-black p-2 text-center">{{ order.quantity }}</td>
               <td class="border-2 border-black p-2 text-center">{{ order.station?.name }}</td>
               <td class="border-2 border-black p-2 text-center">{{ order.notification_number }}</td>
@@ -129,6 +133,7 @@
                 <td class="border-2 border-black p-2"></td>
                 <td class="border-2 border-black p-2"></td>
                 <td class="border-2 border-black p-2"></td>
+                <td class="border-2 border-black p-2"></td>
               </tr>
             </template>
           </tbody>
@@ -136,7 +141,7 @@
           <!-- 3. تذييل الجدول (Footer) -->
           <tfoot class="report-footer">
             <tr>
-              <td :colspan="8" class="p-0">
+              <td :colspan="9" class="p-0">
                 <!-- مساحة فارغة فوق التذييل لتجنب التداخل -->
                 <div class="h-24"></div>
                 <!-- حاوية التذييل الفعلية -->

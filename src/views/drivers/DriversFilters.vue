@@ -83,6 +83,7 @@ const statusOptions = [
   { value: 'available', label: 'متاح' },
   { value: 'on_trip', label: 'في رحلة' },
   { value: 'unavailable', label: 'غير متاح' },
+  { value: 'wants_to_work', label: 'يريد عمل' },
 ]
 
 // --- فلتر طبيعة العمل ---

@@ -18,11 +18,12 @@
         <select
           id="driver-status"
           v-model="form.status"
-          class="block w-full rounded-md shadow-sm ..."
+          class="block w-full rounded-md shadow-sm transition-colors duration-200 bg-gray-50 border-2 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-surface-ground dark:border-surface-border dark:text-text-primary dark:placeholder:text-text-muted dark:focus:ring-primary dark:focus:border-primary"
         >
           <option value="available">متاح</option>
           <option value="on_trip">في رحلة</option>
           <option value="unavailable">غير متاح</option>
+          <option value="wants_to_work">يريد عمل</option>
         </select>
       </div>
 
