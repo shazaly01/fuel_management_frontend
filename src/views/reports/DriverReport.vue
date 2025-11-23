@@ -5,11 +5,11 @@
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-800 dark:text-text-primary">تقرير السائقين</h1>
       <p class="text-gray-600 dark:text-text-secondary mt-1">
-        عرض السائقين مع إمكانية الفلترة حسب الحالة وسقف الطلبيات.
+        عرض السائقين مع شاحناتهم وإمكانية الفلترة.
       </p>
     </div>
 
-    <!-- قسم الفلاتر -->
+    <!-- قسم الفلاتر (يبقى كما هو) -->
     <AppCard class="mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <!-- فلتر الحالة -->
@@ -45,6 +45,15 @@
         <div class="flex space-x-2 space-x-reverse">
           <AppButton @click="applyFilters"> تطبيق </AppButton>
           <AppButton variant="outline" @click="resetFilters"> إعادة تعيين </AppButton>
+          <!-- [تمت الإضافة هنا] -->
+          <AppButton
+            variant="primary"
+            @click="openPrintPage"
+            :disabled="!driverReport.data || driverReport.data.length === 0"
+          >
+            <PrinterIcon class="w-5 h-5 ml-2" />
+            طباعة
+          </AppButton>
         </div>
       </div>
     </AppCard>
@@ -57,7 +66,7 @@
         :is-loading="driverReport.loading"
         :row-clickable="false"
       >
-        <!-- تخصيص عرض خلية الحالة -->
+        <!-- تخصيص عرض خلية الحالة (يبقى كما هو) -->
         <template #cell-status="{ item }">
           <span
             class="px-3 py-1 text-sm font-semibold rounded-full"
@@ -73,15 +82,31 @@
             {{ item.status }}
           </span>
         </template>
+
+        <!-- [إضافة] تخصيص عرض خلايا الشاحنة -->
+        <template #cell-truck_number="{ item }">
+          <span v-if="item.truck">{{ item.truck.truck_number }}</span>
+          <span v-else class="text-text-muted">--</span>
+        </template>
+        <template #cell-truck_type="{ item }">
+          <span v-if="item.truck">{{ item.truck.truck_type }}</span>
+          <span v-else class="text-text-muted">--</span>
+        </template>
+        <template #cell-trailer_number="{ item }">
+          <span v-if="item.truck">{{ item.truck.trailer_number }}</span>
+          <span v-else class="text-text-muted">--</span>
+        </template>
       </AppTable>
 
-      <AppPagination :meta="driverReport.pagination" @page-change="handlePageChange" />
+      <!-- [حذف] تم حذف مكون الترقيم بالكامل -->
     </AppCard>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router' // <-- 1. استورد useRouter
+import { PrinterIcon } from '@heroicons/vue/24/outline' // <-- 2. استورد أيقونة الطباعة
 import { useReportStore } from '@/stores/reportStore'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'vue-toastification'
@@ -90,44 +115,41 @@ import { useToast } from 'vue-toastification'
 import AppTable from '@/components/ui/AppTable.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppCard from '@/components/ui/AppCard.vue'
-import AppPagination from '@/components/ui/AppPagination.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 
 // إعدادات
 const reportStore = useReportStore()
 const { driverReport } = storeToRefs(reportStore)
 const toast = useToast()
+const router = useRouter() // <-- 3. قم بتهيئة الراوتر
 
-// تعريف أعمدة الجدول
+// [تعديل] تعريف أعمدة الجدول لتشمل بيانات الشاحنة
 const tableHeaders = [
   { key: 'id', label: '#' },
   { key: 'name', label: 'اسم السائق' },
   { key: 'license_number', label: 'رقم الرخصة' },
   { key: 'phone_number', label: 'رقم الهاتف' },
-  { key: 'status', label: 'الحالة' },
+  { key: 'truck_number', label: 'رقم الشاحنة' },
+  { key: 'truck_type', label: 'نوع الشاحنة' },
+  { key: 'trailer_number', label: 'رقم المقطورة' },
 ]
 
-// إدارة الفلاتر
+// [تعديل] إدارة الفلاتر بدون "page"
 const filters = ref({
   status: '',
   order_limit: '',
-  page: 1,
 })
 
 const applyFilters = () => {
-  filters.value.page = 1
   fetchReportData()
 }
 
 const resetFilters = () => {
-  filters.value = { status: '', order_limit: '', page: 1 }
+  filters.value = { status: '', order_limit: '' }
   fetchReportData()
 }
 
-const handlePageChange = (page) => {
-  filters.value.page = page
-  fetchReportData()
-}
+// [حذف] تم حذف دالة handlePageChange
 
 const fetchReportData = () => {
   const cleanFilters = Object.fromEntries(
@@ -137,6 +159,19 @@ const fetchReportData = () => {
   reportStore.fetchDriverReport(cleanFilters).catch(() => {
     toast.error('حدث خطأ أثناء جلب بيانات التقرير.')
   })
+}
+
+const openPrintPage = () => {
+  const cleanFilters = Object.fromEntries(
+    Object.entries(filters.value).filter(([_, v]) => v !== '' && v !== null),
+  )
+
+  const routeData = router.resolve({
+    name: 'DriverReportPrint', // اسم المسار الذي عرفناه
+    query: cleanFilters,
+  })
+
+  window.open(routeData.href, '_blank')
 }
 
 // جلب البيانات عند تحميل المكون لأول مرة

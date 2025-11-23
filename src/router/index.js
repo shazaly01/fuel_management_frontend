@@ -50,6 +50,13 @@ const routes = [
     },
   },
 
+  {
+    path: '/print/reports/drivers', // المسار الجديد لتقرير السائقين
+    name: 'DriverReportPrint', // اسم المسار
+    component: () => import('@/views/print/DriverReportPrint.vue'), // المكون الجديد
+    meta: { requiresAuth: true },
+  },
+
   // --- المسارات العامة (لا تتطلب مصادقة) ---
   {
     path: '/',
