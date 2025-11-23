@@ -5,8 +5,12 @@ export default {
   getDashboardStats() {
     return apiClient.get('/dashboard')
   },
-  getDriverReport(params) {
-    return apiClient.get('/reports/drivers', { params })
+  /**
+   * جلب بيانات تقرير السائقين.
+   * @param {object} filters - كائن يحتوي على الفلاتر.
+   */
+  getDriverReport(filters = {}) {
+    return apiClient.get('/reports/drivers', { params: filters })
   },
   getOrderReport(params) {
     return apiClient.get('/reports/orders', { params })

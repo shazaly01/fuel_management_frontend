@@ -13,7 +13,7 @@
 
     <!-- رسائل التحميل والخطأ -->
     <div v-if="isLoading" class="text-center p-20 bg-white rounded-lg shadow max-w-6xl mx-auto">
-      <p>جاري تحميل بيانات التقرير...</p>
+      <p>جاري تحميل بيانات التقرير للطباعة...</p>
     </div>
     <div v-else-if="error" class="text-center p-20 bg-white rounded-lg shadow max-w-6xl mx-auto">
       <p class="text-red-500 font-semibold">{{ error }}</p>
@@ -32,7 +32,6 @@
         <thead class="report-header">
           <tr>
             <th class="p-0 align-top" :colspan="tableHeaders.length">
-              <!-- [تم التعديل هنا] -->
               <div class="flex justify-between items-center mb-4 pb-4 border-b-2 border-gray-300">
                 <!-- القسم الأيمن: عنوان التقرير والتاريخ -->
                 <div class="flex flex-col items-center justify-center">
@@ -60,7 +59,6 @@
                   <img src="/logo2.png" alt="شعار الشركة" class="h-20 w-20" />
                 </div>
               </div>
-              <!-- [نهاية التعديل] -->
             </th>
           </tr>
           <tr class="text-sm">
@@ -107,15 +105,22 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useDriverStore } from '@/stores/driverStore'
+// --- [تم التعديل هنا] ---
+import { useReportStore } from '@/stores/reportStore' // استيراد المخزن الصحيح
+// --- [نهاية التعديل] ---
 import { storeToRefs } from 'pinia'
-import AppButton from '@/components/ui/AppButton.vue' // <-- استيراد زر
-import { PrinterIcon } from '@heroicons/vue/24/outline' // <-- استيراد أيقونة
+import AppButton from '@/components/ui/AppButton.vue'
+import { PrinterIcon } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
-const driverStore = useDriverStore()
+// --- [تم التعديل هنا] ---
+const reportStore = useReportStore() // استخدام المخزن الصحيح
 
-const { drivers: reportData, loading: isLoading } = storeToRefs(driverStore)
+// استهداف البيانات الصحيحة من المخزن
+const { driverReport } = storeToRefs(reportStore)
+const reportData = computed(() => driverReport.value.data)
+const isLoading = computed(() => driverReport.value.loading)
+// --- [نهاية التعديل] ---
 const error = ref(null)
 
 const tableHeaders = [
@@ -128,24 +133,25 @@ const tableHeaders = [
   { key: 'trailer_number', label: 'رقم المقطورة' },
 ]
 
-// [حذف] تم حذف خاصية chunkedDrivers
-
 onMounted(async () => {
   try {
-    // جلب كل البيانات للتقرير
+    // --- [تم التعديل هنا] ---
+    // جلب كل البيانات للتقرير عن طريق تمرير per_page: -1
     const filters = { ...route.query, per_page: -1 }
-    await driverStore.fetchDrivers(1, filters)
+    // استدعاء الدالة الصحيحة من المخزن الصحيح
+    await reportStore.fetchDriverReport(filters)
+    // --- [نهاية التعديل] ---
   } catch (err) {
     error.value = 'فشل تحميل بيانات التقرير.'
     console.error(err)
   }
 })
 
-// [إضافة] دالة الطباعة
 const triggerPrint = () => window.print()
 </script>
 
 <style>
+/* ... (لا تغييرات في قسم الـ style) ... */
 .ltr-text {
   direction: ltr;
   text-align: center;
@@ -166,12 +172,9 @@ const triggerPrint = () => window.print()
     size: A4 landscape;
     margin: 1.5cm;
   }
-
-  /* [تعديل] هذا الكلاس يضمن عدم قطع الصف في منتصفه بين صفحتين */
   .page-break-inside-avoid {
     page-break-inside: avoid;
   }
-
   .report-header {
     display: table-header-group;
   }
