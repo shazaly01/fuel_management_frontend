@@ -86,11 +86,11 @@
             </tr>
             <tr class="text-sm">
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-12">م</th>
-              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-auto">اسم السائق</th>
+              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-48">اسم السائق</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم السيارة</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم المقطورة</th>
-              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">الحمولة</th>
-              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">نوع الوقود</th>
+              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-24">الحمولة</th>
+              <th class="border-2 border-black p-2 font-bold bg-gray-100 w-24">نوع الوقود</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-auto">المحطة</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم الإشعار</th>
               <th class="border-2 border-black p-2 font-bold bg-gray-100 w-32">رقم الهاتف</th>
@@ -112,10 +112,10 @@
               <td class="border-2 border-black p-2 text-center">
                 {{ order.driver?.truck?.trailer_number }}
               </td>
+              <td class="border-2 border-black p-2 text-center">{{ parseInt(order.quantity) }}</td>
               <td class="border-2 border-black p-2 text-center font-semibold">
                 {{ order.product?.name }}
               </td>
-              <td class="border-2 border-black p-2 text-center">{{ order.quantity }}</td>
               <td class="border-2 border-black p-2 text-center">{{ order.station?.name }}</td>
               <td class="border-2 border-black p-2 text-center">{{ order.notification_number }}</td>
               <td class="border-2 border-black p-2 text-center">
@@ -125,15 +125,15 @@
             <!-- [إضافة] إضافة صفوف فارغة لإكمال 10 صفوف في كل صفحة -->
             <template v-if="orderChunk.length < 10">
               <tr v-for="n in 10 - orderChunk.length" :key="`empty-${n}`">
-                <td class="border-2 border-black p-2 text-center">&nbsp;</td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
-                <td class="border-2 border-black p-2"></td>
+                <td class="border-2 border-black p-2 text-center empty-row-filler">&nbsp;</td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
+                <td class="border-2 border-black p-2 empty-row-filler"></td>
               </tr>
             </template>
           </tbody>
@@ -289,6 +289,11 @@ const triggerPrint = () => window.print()
   .border-black {
     border-color: #000 !important;
   }
+}
+
+/* CSS لإجبار الصفوف الفارغة على ملء المساحة ودفع التذييل للأسفل */
+.empty-row-filler {
+  height: 30px; /* ارتفاع تقريبي للصف الواحد */
 }
 
 #report-to-print {
